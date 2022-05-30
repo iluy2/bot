@@ -1,4 +1,5 @@
 import telebot
+
 from telebot import types
 import time
 
@@ -11,7 +12,7 @@ bot = telebot.TeleBot("5274807635:AAEtdRC26DuAF6CMsZ_tq_51TUu8mOw1Bvg")
 
 @bot.message_handler(commands='start')
 def send_welcome(message):
-    hello_message = "Привет " + '👋' + " Начнём?)\nВыбирай свой статус:"
+    hello_message = "Привет " + '👋' + " Начнём?)\n Выбирай свой статус:"
     keyboard = types.InlineKeyboardMarkup()
     key_ab = types.InlineKeyboardButton(text="Абитуриент 👦🏻", callback_data='a')
     keyboard.add(key_ab)
@@ -21,8 +22,7 @@ def send_welcome(message):
 
 
 hello = "Хэй 👋🏻\n Это бот МИРЭА! Чтобы начать, введи /start, а далее: \n📌 Жми на кнопку \"абитуриент 👦🏻\" и " \
-        "выбирай:\n✔️ тест 🤷🏻 - пройти тест на выбор направления 🙈\n✔️ инфа ❔ - узнать информацию о " \
-        "факультетах️\n📌 Жми \"студент 👨🏻‍🦳\" и выбирай:\n✔️ " \
+        "выбирай:\n✔️ тест 🤷🏻 - пройти тест на выбор направления 🙈️\n📌 Жми \"студент 👨🏻‍🦳\" и выбирай:\n✔️ " \
         "че по парам 🥴 - бот покажет твоё расписание 😁\n✔️ дз 😪 - запиши дз и бот напомнит о нём " \
         "🤤\n✔️ КАКАЯ ЛЕСТНЦА ⁉️ - подскажет по какой лестнице быстрее добраться)"
 
@@ -55,12 +55,15 @@ def get_time(message):
     chat_id = message.chat.id
     users[chat_id].insert(1, timelaps)
     while not timelaps.isdigit():
-        bot.send_message(message.chat.id, 'Цифрами, пожалуйста �')
+        bot.send_message(message.chat.id, 'Цифрами, пожалуйста  ')
         bot.register_next_step_handler(message, get_time)
         users[chat_id].pop()
         break
     else:
-        bot.send_message(message.chat.id, text='Запомнил ✅')
+        keyboard = types.InlineKeyboardMarkup()
+        key_b = types.InlineKeyboardButton(text=" Назад ⏮", callback_data='back')
+        keyboard.add(key_b)
+        bot.send_message(message.chat.id, text='Запомнил ✅ \nВернуться в меню? ', reply_markup=keyboard)
         check_in(message)
 
 
@@ -81,7 +84,7 @@ def get_lest(message):
 def get_kab(message):
     ch = message.text
     while not ch.isdigit():
-        bot.send_message(message.chat.id, 'Цифрами, пожалуйста �')
+        bot.send_message(message.chat.id, 'Цифрами, пожалуйста  ')
         bot.register_next_step_handler(message, get_kab)
         break
     else:
@@ -103,6 +106,10 @@ def which_stairs(message):
     elif 140 < int(kab) <= 199 or 240 < int(kab) <= 299 or 340 < int(kab) <= 399 or 437 < int(kab) <= 470:
         bot.send_message(message.chat.id,
                          text='✔️чтобы попасть в ' + kab + ' кабинет поднимайся по "Бета-лестнице" 4️⃣')
+    keyboard = types.InlineKeyboardMarkup()
+    key_b = types.InlineKeyboardButton(text=" Назад ⏮", callback_data='back')
+    keyboard.add(key_b)
+    bot.send_message(message.chat.id, text="Вернуться в меню?", reply_markup=keyboard)
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -111,8 +118,6 @@ def callback_worker(call):
         keyboard = types.InlineKeyboardMarkup()
         key_test = types.InlineKeyboardButton(text="✔️ тест 🤷🏻 ", callback_data='test')
         keyboard.add(key_test)
-        key_inf = types.InlineKeyboardButton(text=" ✔️ инфа ❔ ", callback_data='inf')
-        keyboard.add(key_inf)
         key_back = types.InlineKeyboardButton(text="Назад ⏮", callback_data='back')
         keyboard.add(key_back)
         ab_text = "Удачи с поступлением 😉\nЧем можем помочь?"
@@ -129,8 +134,6 @@ def callback_worker(call):
         keyboard.add(key_back)
         st_text = "Чего надобно, старче? 🧐"
         bot.send_message(call.message.chat.id, text=st_text, reply_markup=keyboard)
-    # elif call.data == "back":
-    #    bot.send_message(call.message.chat.id, text='Жми /start')
     elif call.data == "back":
         back_keyboard = types.InlineKeyboardMarkup()
         call_button_back_a = types.InlineKeyboardButton(text="Абитуриенту 👦🏻", callback_data="a")
@@ -142,15 +145,9 @@ def callback_worker(call):
     elif call.data == 'dz':
         bot.send_message(call.message.chat.id, 'Запиши дз, а я напомню о нём, через сколько скажешь :)')
         get_mes(call.message)
-        call.data = 's'
-        time.sleep(10)
-        callback_worker(call)
     elif call.data == 'lest':
-        bot.send_message(call.message.chat.id, 'Пока можем подсказать только по кабинетам Стромынки :(')
+        bot.send_message(call.message.chat.id, text="Пока можем подсказать только по кабинетам Стромынки :(")
         get_lest(call.message)
-        call.data = 's'
-        time.sleep(5)
-        callback_worker(call)
     elif call.data == "rasp":
         keyboard = types.InlineKeyboardMarkup()
         key_1 = types.InlineKeyboardButton(text=" Институт перспективных технологий и индустриального "
@@ -495,6 +492,93 @@ def callback_worker(call):
         call.data = 's'
         time.sleep(2)
         callback_worker(call)
+    elif call.data == "test":
+        keyboard = types.InlineKeyboardMarkup()
+        key_76 = types.InlineKeyboardButton (text = "Физика", callback_data= '76')
+        keyboard.add(key_76)
+        key_77 = types.InlineKeyboardButton (text = "Информатика", callback_data= '77')
+        keyboard.add(key_77)
+        key_78 = types.InlineKeyboardButton (text = "Дизайн", callback_data= '78')
+        keyboard.add(key_78)
+        key_79 = types.InlineKeyboardButton (text = "Биология и химия", callback_data= '79')
+        keyboard.add(key_79)
+        key_80 = types.InlineKeyboardButton (text = "Обществознание", callback_data= '80')
+        keyboard.add(key_80)
+        key_back = types.InlineKeyboardButton(text="Назад ⏮", callback_data='back')
+        keyboard.add(key_back)
+        prof_text = 'Не можешь решить какое направление выбрать? Мы поможем! \n Что тебе интересно изучить?'
+        bot.send_message(call.message.chat.id, text=prof_text, reply_markup=keyboard)
+    elif call.data == "76":
+        keyboard = types.InlineKeyboardMarkup()
+        key_81 = types.InlineKeyboardButton(text="Радиоэлектроника!📻", callback_data="81")
+        keyboard.add(key_81)
+        key_82 = types.InlineKeyboardButton(text="Приборостроение!⚙", callback_data='82')
+        keyboard.add(key_82)
+        key_back = types.InlineKeyboardButton(text="Назад ⏮", callback_data='back')
+        keyboard.add(key_back)
+        fiz_text = "Какой раздел физики тебя привлекает больше? \n Hа радиотехнике ты будешь принимать участие в разраб" \
+                   "отке радиоприборов или даже космической радионавигации 🚀 \n На приборостроении тебя научат произво" \
+                   "дственно-технологическим видам практической деятельности и робототехнике 🤖"
+        bot.send_message(call.message.chat.id, text=fiz_text, reply_markup=keyboard)
+    elif call.data == "81":
+        keyboard = types.InlineKeyboardMarkup()
+        key_back = types.InlineKeyboardButton(text="Назад ⏮", callback_data='back')
+        keyboard.add(key_back)
+        bot.send_message(call.message.chat.id, text= "Тогда тебе подойдут следующие направления 😉 \n 11.03.01 https://vk.cc/cdZy6q \n 11.03.04 https://vk.cc/cdZydR \n 11.05.01 https://vk.cc/cdZyhS \n 12.05.01 https://vk.cc/cdZyud \n 28.03.01 https://vk.cc/cdZywr", reply_markup=keyboard)
+    elif call.data == "82":
+        keyboard = types.InlineKeyboardMarkup()
+        key_back = types.InlineKeyboardButton(text="Назад ⏮", callback_data='back')
+        keyboard.add(key_back)
+        bot.send_message(call.message.chat.id,
+                         text="Тогда тебе подойдут следующие направления 😉 \n 11.03.03 https://vk.cc/cdZyHG \n 12.03.01 https://vk.cc/cdZyKR \n 12.03.04 https://vk.cc/cdZyPJ \n 15.03.01 https://vk.cc/cdZyTp \n 15.03.04 https://vk.cc/cdZyYZ \n 15.03.06 https://vk.cc/cdZz1t", reply_markup=keyboard)
+    elif call.data == "77":
+        keyboard = types.InlineKeyboardMarkup()
+        key_83 = types.InlineKeyboardButton(text="Объекто-оринтированое програмирование ", callback_data="83")
+        keyboard.add(key_83)
+        key_84 = types.InlineKeyboardButton(text="Информационная безопасность", callback_data='84')
+        keyboard.add(key_84)
+        key_back = types.InlineKeyboardButton(text="Назад ⏮", callback_data='back')
+        keyboard.add(key_back)
+        bot.send_message(call.message.chat.id, text= "Готов углубиться в програмирование и проектирование сложных систем?😎 \n На какой стороне ты? ПРограмирование для эксплуатации сложных систем и сетевого обеспечения? \n Или ты хочешь стоять на страже информационного порядка?", reply_markup=keyboard)
+    elif call.data == "83":
+        keyboard = types.InlineKeyboardMarkup()
+        key_back = types.InlineKeyboardButton(text="Назад ⏮", callback_data='back')
+        keyboard.add(key_back)
+        bot.send_message(call.message.chat.id, text= "Тогда рассмотри эти направления 😉 \n 01.03.02 https://vk.cc/cdZz8q \n 01.03.04 https://vk.cc/cdZzaF \n 01.03.05 https://vk.cc/cdZze1 \n 02.03.02 https://vk.cc/cdZzfo \n 05.03.03 https://vk.cc/cdZziU \n 09.03.01 https://vk.cc/cdZzlP \n 09.03.02 https://vk.cc/cdZzox \n 11.03.02 https://vk.cc/cdZzrw \n 27.03.03 https://vk.cc/cdZzvV",reply_markup=keyboard)
+    elif call.data == "84":
+        keyboard = types.InlineKeyboardMarkup()
+        key_back = types.InlineKeyboardButton(text="Назад ⏮", callback_data='back')
+        keyboard.add(key_back)
+        bot.send_message(call.message.chat.id, text= "Тебе стоит рассотреть такие направления 😉 \n 10.03.01 https://vk.cc/cdZzBq \n 10.05.01 https://vk.cc/cdZzIe \n 10.05.02 https://vk.cc/cdZzKh \n 10.05.03 https://vk.cc/cdZzMm \n 10.05.04 https://vk.cc/cdZzOv \n 10.05.05 https://vk.cc/cdZzSh  ", reply_markup=keyboard)
+    elif call.data == "78":
+        keyboard = types.InlineKeyboardMarkup()
+        key_back = types.InlineKeyboardButton(text="Назад ⏮", callback_data='back')
+        keyboard.add(key_back)
+        bot.send_message(call.message.chat.id, text= "Ну наконец-то у нас будет красивая визуалзация проектов 👾 \n 29.03.04 https://vk.cc/cdZzXO \n 54.03.01 https://vk.cc/cdZzZk" ,reply_markup=keyboard)
+    elif call.data == "79":
+        keyboard = types.InlineKeyboardMarkup()
+        key_back = types.InlineKeyboardButton(text="Назад ⏮", callback_data='back')
+        keyboard.add(key_back)
+        bot.send_message(call.message.chat.id, text= "О! ИТХТ им. М.В. Ломоносова нуждается в тебе! \n 04.03.01 https://vk.cc/cdZA22 \n 18.03.01 https://vk.cc/cdZA5d \n 19.03.01 https://vk.cc/cdZAa2 \n 20.03.01 https://vk.cc/cdZAcJ \n 22.03.01 https://vk.cc/cdZAg3", reply_markup=keyboard)
+    elif call.data == "80":
+        keyboard = types.InlineKeyboardMarkup()
+        key_85 = types.InlineKeyboardButton (text = "Хочу управлять!", callback_data= "85")
+        keyboard.add(key_85)
+        key_86 = types.InlineKeyboardButton(text = "Право и юриспруденция!", callback_data="86")
+        keyboard.add(key_86)
+        key_back = types.InlineKeyboardButton(text="Назад ⏮", callback_data='back')
+        keyboard.add(key_back)
+        bot.send_message(call.message.chat.id, text= "Что тебе по душе - право и юриспруденция или управление и экономика?" ,reply_markup=keyboard)
+    elif call.data == "85":
+        keyboard = types.InlineKeyboardMarkup()
+        key_back = types.InlineKeyboardButton(text="Назад ⏮", callback_data='back')
+        keyboard.add(key_back)
+        bot.send_message(call.message.chat.id, text= "Ну держи, депутат 💼 \n 27.03.01 https://vk.cc/cdZAnc \n 27.03.05 https://vk.cc/cdZApv \n 38.03.01 https://vk.cc/cdZAsn \n 38.03.02 https://vk.cc/cdZAvj \n 38.03.03 https://vk.cc/cdZAzk \n 38.03.04 https://vk.cc/cdZAD8 \n 38.03.05 https://vk.cc/cdZAGt \n 38.05.01 https://vk.cc/cdZAK4 \n 46.03.02 https://vk.cc/cdZAMC \n 38.03.10 https://vk.cc/cdZAPI ",reply_markup= keyboard)
+    elif call.data == "86":
+        keyboard = types.InlineKeyboardMarkup()
+        key_back = types.InlineKeyboardButton(text="Назад ⏮", callback_data='back')
+        keyboard.add(key_back)
+        bot.send_message(call.message.chat.id, text= "Эти направления просто созданы для тебя ⚖ \n 40.03.01 https://vk.cc/cdZAVi \n 40.05.01 https://vk.cc/cdZAXH",reply_markup = keyboard)
 
 
 bot.polling()
